@@ -5,56 +5,61 @@ import {
   getIndustryAverageSalary,
   getAverageSalaryByCompany,
 } from "./modules/workAroundModule.js";
-import formatNumbers from './modules/utilities.js'
+import formatNumbers from './modules/utilities.js';
 
+// Query DOM elements once
+const mainElement = document.querySelector("main");
+const salarySelectedElement = document.getElementById("salarySelected");
+const salaryAverageByRoleElement = document.getElementById("salaryAverageByRole");
+const salaryAverageByCompanyElement = document.getElementById("salaryAverageByCompany");
+const salaryAverageIndustryElement = document.getElementById("salaryAverageIndustry");
+
+// Initialize input buttons
 const companies = getCompanies();
 const roles = getRoles();
-
-
 renderInputButtons(companies, "company");
 renderInputButtons(roles, "role");
 
+// Event delegation for input buttons
+mainElement.addEventListener("click", function(event) {
+  if (event.target.matches("input[type='radio']")) {
+    updateResults();
+  }
+});
+
 function renderInputButtons(labels, groupName) {
   const container = document.createElement("section");
-  container.setAttribute("id", `${groupName}Inputs`);
+  container.id = `${groupName}Inputs`;
 
-  let header = document.createElement("h3");
+  const header = document.createElement("h3");
   header.innerText = `Select a ${groupName}`;
   container.appendChild(header);
 
-  labels.forEach((label) => {
-    // For each label...
-    // Create the radio input element.
-    let divElement = document.createElement("div");
-    divElement.setAttribute("class", "option");
+  labels.forEach(label => {
+    const divElement = document.createElement("div");
+    divElement.classList.add("option");
 
-    let inputElement = document.createElement("input");
-    inputElement.setAttribute("type", "radio");
-    inputElement.setAttribute("name", groupName);
-    inputElement.setAttribute("value", label);
+    const inputElement = document.createElement("input");
+    inputElement.type = "radio";
+    inputElement.name = groupName;
+    inputElement.value = label;
     divElement.appendChild(inputElement);
 
-    // Create a label for that radio input element.
-    let labelElement = document.createElement("label");
+    const labelElement = document.createElement("label");
     labelElement.setAttribute("for", label);
     labelElement.innerText = label;
     divElement.appendChild(labelElement);
 
-    // Update the results when the input is selected.
-    inputElement.addEventListener("click", updateResults);
-
     container.appendChild(divElement);
   });
 
-  document.querySelector("main").prepend(container);
+  mainElement.prepend(container);
 }
 
 function updateResults() {
-  // Get the current selected company and role from the radio button inputs.
-  const company = document.querySelector("input[name='company']:checked").value;
-  const role = document.querySelector("input[name='role']:checked").value;
+  const company = document.querySelector("input[name='company']:checked")?.value;
+  const role = document.querySelector("input[name='role']:checked")?.value;
 
-  // If either the company or role is unselected, return.
   if (!company || !role) {
     return;
   }
@@ -64,17 +69,8 @@ function updateResults() {
   const salary = formatNumbers(getSalaryAtCompany(role, company));
   const industryAverageSalary = formatNumbers(getIndustryAverageSalary());
 
-  // Render them to the screen.
-  document.getElementById(
-    "salarySelected"
-  ).innerText = `The salary for ${role}s at ${company} is \$${salary}`;
-  document.getElementById(
-    "salaryAverageByRole"
-  ).innerText = `The industry average salary for ${role} positions is \$${averageSalaryByRole}`;
-  document.getElementById(
-    "salaryAverageByCompany"
-  ).innerText = `The average salary at ${company} is \$${averageSalaryByCompany}`;
-  document.getElementById(
-    "salaryAverageIndustry"
-  ).innerText = `The average salary in the Tech industry is \$${industryAverageSalary}`;
+  salarySelectedElement.innerText = `The salary for ${role}s at ${company} is \$${salary}`;
+  salaryAverageByRoleElement.innerText = `The industry average salary for ${role} positions is \$${averageSalaryByRole}`;
+  salaryAverageByCompanyElement.innerText = `The average salary at ${company} is \$${averageSalaryByCompany}`;
+  salaryAverageIndustryElement.innerText = `The average salary in the Tech industry is \$${industryAverageSalary}`;
 }
